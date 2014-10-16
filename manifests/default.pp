@@ -127,7 +127,8 @@ puphpet::ini { 'php-cli':
 
 puphpet::ini { 'php-apache2':
   value   => [
-    'date.timezone = "America/Sao_Paulo"'
+    'date.timezone = "America/Sao_Paulo"',
+    'always_populate_raw_post_data = -1'
   ],
   ini     => '/etc/php5/apache2/conf.d/zzz_php.ini',
   notify  => Service['apache'],
