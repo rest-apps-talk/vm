@@ -177,7 +177,7 @@ exec { 'install-frontend' :
 }
 
 exec { 'clone-backend' :
-    command => 'git clone https://github.com/rest-apps-talk/blogmv-api.git /vhosts/blogmv-backend'
+    command => 'git clone https://github.com/rest-apps-talk/backend.git /vhosts/blogmv-backend'
 }
 
 exec { 'install-backend' :
