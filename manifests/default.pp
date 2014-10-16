@@ -11,8 +11,8 @@ Class['::apt::update'] -> Package <|
 and title != 'software-properties-common'
 |>
 
-exec { "apt-update":
-    command => "/usr/bin/apt-get update"
+exec {
+    "apt-update": command => "/usr/bin/apt-get update"
 }
 
 Exec["apt-update"] -> Package <| |>
@@ -31,7 +31,9 @@ package { [
     'curl',
     'git-core',
     'git-flow',
-    'nodejs'
+    'nodejs',
+    'nodejs-legacy',
+    'npm'
   ]:
   ensure  => 'installed',
 }
@@ -54,7 +56,7 @@ apache::module { 'rewrite': }
 apache::vhost { 'blogmv-backend':
   server_name   => 'blogmv-backend',
   serveraliases => [],
-  docroot       => '/vhosts/blogmv-backend/src',
+  docroot       => '/vhosts/blogmv-backend/public',
   port          => '80',
   env_variables => [],
   priority      => '1',
@@ -160,5 +162,24 @@ class { 'mysql::server':
   }
 }
 
+exec { 'bower-install' :
+    command => 'sudo npm install -g bower'
+}
 
+exec { 'clone-frontend' :
+    command => 'git clone https://github.com/rest-apps-talk/frontend.git /vhosts/blogmv-frontend'
+}
 
+exec { 'install-frontend' :
+    cwd => '/vhosts/blogmv-frontend',
+    command => 'bower install -q'
+}
+
+exec { 'clone-backend' :
+    command => 'git clone https://github.com/rest-apps-talk/blogmv-api.git /vhosts/blogmv-backend'
+}
+
+exec { 'install-backend' :
+    cwd => '/vhosts/blogmv-backend',
+    command => 'composer install --prefer-dist && mysql -uroot -padmin -e "CREATE SCHEMA blogmv DEFAULT CHARSET utf8" && ./vendor/bin/doctrine m:m --no-interaction'
+}
