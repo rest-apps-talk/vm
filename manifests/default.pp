@@ -19,7 +19,7 @@ Exec["apt-update"] -> Package <| |>
 
     apt::key { '4F4EA0AAE5267A6C': }
 
-apt::ppa { 'ppa:ondrej/php5':
+apt::ppa { 'ppa:ondrej/php5-5.6':
   require => Apt::Key['4F4EA0AAE5267A6C']
 }
 
@@ -31,7 +31,6 @@ package { [
     'curl',
     'git-core',
     'git-flow',
-    'memcached',
     'nodejs'
   ]:
   ensure  => 'installed',
@@ -52,14 +51,21 @@ apache::dotconf { 'custom':
 
 apache::module { 'rewrite': }
 
-apache::vhost { 'phpsc.dev':
-  server_name   => 'phpsc.dev',
-  serveraliases => [
-],
-  docroot       => '/vhosts/phpsc.dev',
+apache::vhost { 'blogmv-backend':
+  server_name   => 'blogmv-backend',
+  serveraliases => [],
+  docroot       => '/vhosts/blogmv-backend/src',
   port          => '80',
-  env_variables => [
-],
+  env_variables => [],
+  priority      => '1',
+}
+
+apache::vhost { 'blogmv-frontend':
+  server_name   => 'blogmv-frontend',
+  serveraliases => [],
+  docroot       => '/vhosts/blogmv-frontend',
+  port          => '80',
+  env_variables => [],
   priority      => '1',
 }
 
@@ -69,15 +75,13 @@ class { 'php':
   module_prefix       => '',
 }
 
-php::module { 'php5-mysql': }
+php::module { 'php5-mysqlnd': }
 php::module { 'php5-cli': }
 php::module { 'php5-curl': }
 php::module { 'php5-intl': }
 php::module { 'php5-mcrypt': }
 php::module { 'php5-apcu': }
 php::module { 'php5-imagick': }
-php::module { 'php5-memcached': }
-php::module { 'php5-mysqlnd-ms': }
 
 class { 'php::devel':
   require => Class['php'],
