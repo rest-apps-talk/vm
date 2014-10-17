@@ -1,5 +1,5 @@
 group { 'puppet': ensure => present }
-Exec { path => [ '/bin/', '/sbin/', '/usr/bin/', '/usr/sbin/' ] }
+Exec { path => [ '/bin/', '/sbin/', '/usr/bin/', '/usr/sbin/', '/usr/local/bin/' ] }
 File { owner => 0, group => 0, mode => 0644 }
 
 class {'apt':
@@ -164,23 +164,48 @@ class { 'mysql::server':
 }
 
 exec { 'bower-install' :
-    command => 'sudo npm install -g bower'
+    command => 'sudo npm install -g bower',
+    require => Package["npm"]
 }
 
 exec { 'clone-frontend' :
-    command => 'git clone https://github.com/rest-apps-talk/frontend.git /vhosts/blogmv-frontend'
+    command => 'git clone https://github.com/rest-apps-talk/frontend.git /vhosts/blogmv-frontend',
+    require => Package["git-core"]
 }
 
 exec { 'install-frontend' :
     cwd => '/vhosts/blogmv-frontend',
-    command => 'bower install -q'
+    command => 'bower install -s',
+    require => [Package["nodejs-legacy"], Exec["clone-frontend", "bower-install"]],
+    user => vagrant,
+    notify  => Service['apache']
 }
 
 exec { 'clone-backend' :
-    command => 'git clone https://github.com/rest-apps-talk/backend.git /vhosts/blogmv-backend'
+    command => 'git clone https://github.com/rest-apps-talk/backend.git /vhosts/blogmv-backend',
+    require => Package["git-core"]
 }
 
-exec { 'install-backend' :
+exec { 'backend-deps' :
     cwd => '/vhosts/blogmv-backend',
-    command => 'composer install --prefer-dist && mysql -uroot -padmin -e "CREATE SCHEMA blogmv DEFAULT CHARSET utf8" && ./vendor/bin/doctrine m:m --no-interaction'
+    command => 'composer install --prefer-dist',
+    require => [Class["composer"], Exec["clone-backend"]],
+    environment => ["HOME=/home/vagrant"],
+    timeout => 1800,
+    user => vagrant
+}
+
+exec { 'backend-db-create' :
+    cwd => '/vhosts/blogmv-backend',
+    command => 'mysql -uroot -padmin -e "CREATE SCHEMA blogmv DEFAULT CHARSET utf8"',
+    require => [Class["Mysql::Config"], Exec["backend-deps"]],
+    user => vagrant
+}
+
+exec { 'backend-db-migrate' :
+    cwd => '/vhosts/blogmv-backend',
+    command => 'php vendor/bin/doctrine.php m:m --no-interaction',
+    require => Exec["backend-db-create", "backend-deps"],
+    user => vagrant,
+    notify  => Service['apache']
 }
