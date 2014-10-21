@@ -22,7 +22,7 @@ Após clonar o repositório, entre na pasta e execute o comando ```vagrant up```
 
 Na sequência execute o comando ```vagrant ssh```.
 
-E agora já dentro da máquina execute o comando ```sudo service apache2 reload```.
+Agora já dentro da máquina virtual execute o comando ```sudo service apache2 reload```.
 
 Assim que finalizar o processo de instalação adicione ao arquivo de configuração de hosts do seu sistema operacional:
 
@@ -33,3 +33,6 @@ Assim que finalizar o processo de instalação adicione ao arquivo de configura�
 
 E você poderá acessar a aplicação cliente em [http://blogmv-frontend](http://blogmv-frontend).
 
+## MySQL
+
+Caso você queira acessar o MySQL, dentro da máquina virtual execute o comando ```mysql -u root -p``` (Senha === admin).
