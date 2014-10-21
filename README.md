@@ -20,6 +20,10 @@ Em máquinas windows, é desejável que seja instalado o plugin "vagrant-winnfsd
 
 Após clonar o repositório, entre na pasta e execute o comando ```vagrant up```.
 
+Na sequência execute o comando ```vagrant ssh```.
+
+E agora já dentro da máquina execute o comando ```sudo service apache2 reload```
+
 Assim que finalizar o processo de instalação adicione ao arquivo de configuração de hosts do seu sistema operacional:
 
 ```
